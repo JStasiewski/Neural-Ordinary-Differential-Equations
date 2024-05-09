@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torchdiffeq import odeint
+import matplotlib.pyplot as plt
 
 # Define the ODE function
 class ODEFunc(nn.Module):
@@ -55,7 +56,25 @@ for epoch in range(1000):
     if epoch % 100 == 0:
         print(f'Epoch {epoch}: loss = {loss.item()}')
 
+# Saving the entire model
+torch.save(model, 'ode_model.pth')
+
+# model = torch.load('ode_model.pth')
+
 # Evaluate the model
 with torch.no_grad():
     h_pred = model(h0, t)
     print(f'Predicted trajectory: {h_pred}')
+
+# Extract predicted values for plotting
+predicted_trajectory = h_pred[:, 0, :].detach().numpy()  # Make sure to detach and convert to numpy
+
+# Plot the target and predicted trajectories
+plt.figure(figsize=(10, 5))
+plt.plot(t.numpy(), target.numpy(), label='Target sin(t)')
+plt.plot(t.numpy(), predicted_trajectory[:, 0], label='Predicted Trajectory', linestyle='--')
+plt.xlabel('Time')
+plt.ylabel('Value')
+plt.title('Comparison of Target and Predicted Trajectories')
+plt.legend()
+plt.show()
